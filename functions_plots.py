@@ -7,11 +7,11 @@ from scipy.signal import find_peaks
 import pandas as pd
 from scipy.ndimage import binary_dilation, binary_fill_holes
 import scipy.stats as stats
-import pickle
+import mapper
 from PIL import Image
 import seaborn as sns #needed for aggregated feature plots
 # import pynapple as nap #TODO if you need Pynapple plots, you cannot use alongside cascade as it will break the code
-from configurations import *
+from configurations import main_folder
 
 def random_individual_cell_histograms(deltaF_file, plot_number):
     ## for individual cells, random sample of plot_number, (can also be set to randoms sample of size plot_number, i this case use code below to calculate plot number and then pass it to function) ##

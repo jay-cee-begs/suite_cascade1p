@@ -1,6 +1,3 @@
-# !pip install ruamel.yaml
-
-# standard python packages
 import os, warnings
 import sys
 import glob
@@ -8,29 +5,22 @@ import numpy as np
 import scipy.io as sio
 import ruamel.yaml as yaml
 yaml = yaml.YAML(typ='rt')
-#%matplotlib widget # can be commented back in to make plots interactive
 
-## import functions ##
-from functions_general import *
-from CASCADE_functions import *
-from functions_plots import *
-from functions_data_transformation import *
-
-## import configurations ##
+from CASCADE_functions import plots_and_basic_info, cascade_this
+from functions_data_transformation import get_file_name_list, create_output_csv, csv_to_pickle, create_experiment_overview
 import configurations
-
 
 
 def main():
     # ## get the names of the deltaF files from the functions_data_transformation.py file
 
-    deltaF = get_file_name_list(folder_path = main_folder, file_ending = "deltaF.npy")
+    deltaF = get_file_name_list(folder_path = configurations.main_folder, file_ending = "deltaF.npy")
     # if len(deltaF_files) == 0:
-    #     deltaF_files = get_file_name_list(folder_path = main_folder, file_ending = "deltaF.npy")
-    deltaF_files =get_file_name_list(folder_path = main_folder, file_ending = "deltaF.npy")
+    #     deltaF_files = get_file_name_list(folder_path = configurations.main_folder, file_ending = "deltaF.npy")
+    deltaF_files =get_file_name_list(folder_path = configurations.main_folder, file_ending = "deltaF.npy")
     try:
 
-        predictions_deltaF_files = get_file_name_list(folder_path = main_folder, file_ending = "predictions_deltaF.npy") ## get the names of the predicted spike files
+        predictions_deltaF_files = get_file_name_list(folder_path = configurations.main_folder, file_ending = "predictions_deltaF.npy") ## get the names of the predicted spike files
         if len(predictions_deltaF_files) == 0:
             predictions_deltaF_files = []
     except FileNotFoundError as e:
@@ -47,8 +37,8 @@ def main():
         print("Cascade prediction files already exist")
     
 
-    predictions_deltaF_files = get_file_name_list(folder_path = main_folder, file_ending = "predictions_deltaF.npy") ## get the names of the predicted spike files
-    output_directories = get_file_name_list(folder_path = main_folder, file_ending = "samples")
+    predictions_deltaF_files = get_file_name_list(folder_path = configurations.main_folder, file_ending = "predictions_deltaF.npy") ## get the names of the predicted spike files
+    output_directories = get_file_name_list(folder_path = configurations.main_folder, file_ending = "samples")
     
     # for file, output in zip(predictions_deltaF_files, output_directories):
     #     histogram_total_estimated_spikes(file, output)

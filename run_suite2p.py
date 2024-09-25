@@ -1,13 +1,11 @@
 import os
-import sys
-import matplotlib.pyplot as plt
 import numpy as np
 import tqdm
 from pathlib import Path
 from PIL import Image
-# !pip install nd2reader
 from nd2reader import ND2Reader #only if converting to tiff
 import shutil
+#import sys
 # sys.path.insert(0, 'D:/users/JC/suite2p-0.14.0')
 from suite2p import run_s2p
 
@@ -167,4 +165,6 @@ activate suite2p
 import run_suite2p 
 if __name__ == "__main__":
     run_suite2p.main()
+
+or simply in ipynb file: run_suite2p_main()
     """

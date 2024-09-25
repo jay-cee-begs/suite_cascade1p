@@ -2,12 +2,12 @@
 import os, warnings
 import numpy as np
 import matplotlib.pyplot as plt
-from configurations import *
+from configurations import FRAME_INTERVAL, main_folder
 from scipy.signal import find_peaks, peak_prominences
 
 
 def find_predicted_peaks(cascade_predictions, return_peaks = True):
-## make sure fits peak plots ##
+    """User overview to find"""
     peaks_list = []
     amplitudes_list = []
 

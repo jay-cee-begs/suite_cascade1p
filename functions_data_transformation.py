@@ -2,9 +2,11 @@
 import os
 import pandas as pd
 import numpy as np
-from functions_general import *
-from configurations import *
-from functions_plots import *
+import functions_general
+from functions_general import calculate_deltaF, basic_stats_per_cell, basic_estimated_stats_per_cell, summed_spike_probs_per_cell, return_baseline_F
+from configurations import groups, main_folder, EXPERIMENT_DURATION, FRAME_INTERVAL, BIN_WIDTH, FILTER_NEURONS
+import functions_plots
+from functions_plots import getImg, getStats, dispPlot
 
 SUITE2P_STRUCTURE = {
     "F": ["suite2p", "plane0", "F.npy"],
@@ -91,7 +93,7 @@ def create_df(suite2p_dict): ## creates df structure for single sample (e.g. wel
  
     estimated_spike_total = np.array(summed_spike_probs_per_cell(suite2p_dict["cascade_predictions"]))
     # estimated_spike_std = np.std(np.array(summed_spike_probs_per_cell(suite2p_dict["cascade_predictions"])))
-    basic_stats = basic_estimated_stats_per_cell(suite2p_dict['cascade_predictions'])
+    basic_cell_stats = basic_estimated_stats_per_cell(suite2p_dict['cascade_predictions'])
     F_baseline = return_baseline_F(suite2p_dict["F"], suite2p_dict["Fneu"])
     avg_instantaneous_spike_rate, avg_cell_sds, avg_cell_cvs, avg_time_stamp_mean, avg_time_stamp_sds, avg_time_stamp_cvs = basic_stats_per_cell(suite2p_dict["cascade_predictions"])
    
@@ -105,8 +107,8 @@ def create_df(suite2p_dict): ## creates df structure for single sample (e.g. wel
                     #    "Skew": suite2p_dict["stat"]["skew"],
                        "Baseline_F": F_baseline,
                        "EstimatedSpikes": estimated_spike_total,
-                       "SD_Estimated_Spks":basic_stats[1],
-                       "cv_Estimated_Spks":basic_stats[2],
+                       "SD_Estimated_Spks":basic_cell_stats[1],
+                       "cv_Estimated_Spks":basic_cell_stats[2],
                        "Total Frames": len(suite2p_dict["F"].T)-64,
                        "SpikesFreq": avg_instantaneous_spike_rate, ## -64 because first and last entries in cascade are NaN, thus not considered in estimated spikes)
                     #    "Baseline_F": F_baseline,
@@ -276,70 +278,6 @@ def calculate_iqr_and_outliers(data):
         Q1, Q3, IQR, lower_bound, upper_bound, outliers = np.nan() 
     return IQR, len(outliers)
 
-# def create_experiment_overview(main_folder, groups):
-#     dictionary_list = []
-#     for group in groups:
-#         groups_predictions_deltaF_files = get_file_name_list(folder_path = group, file_ending = "predictions_deltaF.npy", supress_printing = True)
-#         for file in groups_predictions_deltaF_files:
-#             array = np.load(rf"{file}", allow_pickle=True)
-#             avg_cell_instantaneous_spike_rate, cell_sds, cell_cvs, time_stamp_means, time_stamp_sds, time_stamp_cvs = basic_stats_per_cell(array)
-#             count = 0
-#             #change active neurons to have activity > 0 predicted spikes
-#             active_neurons = sum(np.nansum(row) > 0 for row in array)
-#             neuron_count = len(array)
-#             # for row in array:
-#             estimated_spikes = [np.nansum(row) for row in array]
-
-#             #TODO figure out how to successfully calculate baseline fluorescence and report it within this framework
-#             #Load F, Fneu arrays
-#             F_file = file.replace('predictions_deltaF.npy', 'F.npy')
-#             Fneu_file = file.replace('predictions_deltaF.npy', 'Fneu.npy')
-#             F = np.load(rf"{F_file}", allow_pickle = True)
-#             Fneu = np.load(rf"{Fneu_file}", allow_pickle = True)
-#             baseline_F = return_baseline_F(F, Fneu)
-
-#             #separate out and average the baseline fluorescence
-#             inactive_baseline = []
-#             active_baseline = []
-#             for row, cell in zip(array, baseline_F):
-#                 if np.nansum(row) == 0:
-#                     inactive_baseline.append(cell)
-#                 if np.nansum(row) > 0:
-#                     active_baseline.append(cell)
-
-#             avg_inactive_cell = np.nanmean(inactive_baseline)
-#             # inactive_iqr, inactive_outliers = calculate_iqr_and_outliers(inactive_baseline)
-#             avg_active_cell = np.nanmean(active_baseline)
-#             # active_iqr, active_outliers = calculate_iqr_and_outliers(active_baseline)
-
-
-#             # instantaneous_firing_rate = [np.nanmean(row) for row in array] / FRAME_INTERVAL
-#             # for i in range(len(array)):
-#             #     estimated_spikes.append(np.nansum(array[i]))
-#             total_estimated_spikes = round(sum(estimated_spikes), 2)
-#             dictionary_list.append({'Prediction_File': file[len(main_folder)+1:], 
-#                                     'Neuron_Count': neuron_count,
-#                                     'Active_Neuron_Count': active_neurons, 
-#                                     'Active_Neuron_Proportion': round(active_neurons/neuron_count * 100, 2),
-#                                     'Active_Neuron_F0': avg_active_cell,
-#                                     # 'Active_Neuron_F0_IQR': active_iqr,
-#                                     # "Active_F0_outliers": active_outliers,
-#                                     "Inactive_Neuron_F0": avg_inactive_cell,
-#                                     # "Inactive_Neuron_IQR": inactive_iqr,
-#                                     # "Inactive_F0_outliers": inactive_outliers,
-#                                     'Total_Estimated_Spikes': total_estimated_spikes, 
-#                                     'Avg_Estimated_Spikes_per_cell': total_estimated_spikes / active_neurons,
-#                                     "SC_Avg_Instantaneous_Firing_Rate(Hz)": avg_cell_instantaneous_spike_rate,
-#                                     # 'Instantaneous Spikes SD': np.nanmean(cell_sds),
-#                                     "Instantaneous_Spikes_CV": (cell_cvs),
-#                                     "Network_Framewise_Avg_Instantaneous_Firing_Freq": (time_stamp_means),
-#                                     # "Network_Framewise_SD": np.nanmean(time_stamp_sds),
-#                                     "Network_Framewise_CV": (time_stamp_cvs),
-#                                     "Group":group[len(main_folder)+1:]
-#                                     })
-#     df = pd.DataFrame(dictionary_list)
-#     df.to_csv(main_folder + r'\new_experiment_summary.csv')
-#     return df
 def get_unique_prefixes(group_names, prefix_length=3):
     return {name[:prefix_length] for name in group_names}
 
