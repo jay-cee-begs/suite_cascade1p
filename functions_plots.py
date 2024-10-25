@@ -52,7 +52,7 @@ def histogram_total_estimated_spikes(prediction_deltaF_file, output_directory):
     figure_output_path = os.path.join(output_directory, 'spks_histogram.png')
     plt.savefig(figure_output_path, bbox_inches = 'tight')
     print(f'Well Histograms for estimated spikes saved under {figure_output_path}')
-    plt.show()
+    #plt.show()
 
 def plot_group_histogram(group, predictions_deltaF_files): ## plots histograms of total spikes per neuron for each group, possible to add a third group
     group_arrays = []
@@ -135,7 +135,7 @@ def plot_total_spikes_per_frame(prediction_deltaF_file, max_spikes_all_samples, 
     save_path = os.path.join(output_directory, 'total_spikes_per_frame.png')
     plt.savefig(save_path)
     print(f'Total Spikes per frame saved under {save_path}')
-    plt.show()
+    #plt.show()
 
 def plot_average_spike_probability_per_frame(predictions_deltaF_file, output_directory):
     ''' plots average spike probability across all cells divided by total number of cells in dataset (regardless of active or not), standardizes output of plot_total_spikes_per_frame()'''
@@ -153,7 +153,7 @@ def plot_average_spike_probability_per_frame(predictions_deltaF_file, output_dir
     save_path = os.path.join(output_directory, 'avg_spike_probability_per_frame.png')
     plt.savefig(save_path)
     print(f'Average spike probability per frame saved under {save_path}')
-    plt.show()
+    #plt.show()
 
 ## ROI image
 def getImg(ops):
